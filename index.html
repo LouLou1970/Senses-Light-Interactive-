@@ -38,7 +38,49 @@ body{
 }
 </style>
 </head>
-<body>
+<body><style>
+body {
+  margin: 0;
+  font-family: system-ui, sans-serif;
+  background: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
+.wrap {
+  width: 95vw;         /* fill most of the screen width */
+  max-width: 1200px;   /* limit on very large screens */
+  position: relative;
+}
+
+.wrap img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 12px;
+}
+
+.click-area {
+  position: absolute;
+  cursor: pointer;
+  border: 2px solid rgba(255,0,0,0.3); /* temporary for testing */
+}
+
+.click-area.active {
+  animation: bounce 0.5s ease;
+}
+
+@keyframes bounce {
+  0% { transform: scale(1); }
+  25% { transform: scale(1.1); }
+  50% { transform: scale(1); }
+  75% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+</style>
+
 
 <div class="wrap">
   <!-- Main image with all icons -->
