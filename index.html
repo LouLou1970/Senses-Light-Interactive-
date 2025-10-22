@@ -35,7 +35,6 @@ body {
   border-radius: 12px;
 }
 
-/* Style for emoji buttons */
 .click-area {
   position: absolute;
   font-size: 2rem;
@@ -45,8 +44,67 @@ body {
   transform: translate(-50%, -50%);
   transition: transform 0.2s ease;
 }
-
 .click-area.active {
-  transform: translate(-50%, -50%) scal
+  transform: translate(-50%, -50%) scale(1.3);
+}
+</style>
+</head>
+<body>
+
+<button id="startBtn">Start</button>
+
+<div class="wrap">
+  <img src="senses.png" alt="Senses Icons">
+
+  <div class="click-area" style="top:12%; left:20%;" data-sentence="I can see light">👁️</div>
+  <div class="click-area" style="top:12%; left:65%;" data-sentence="I can feel light">✋</div>
+  <div class="click-area" style="top:42%; left:20%;" data-sentence="I can taste light">👅</div>
+  <div class="click-area" style="top:42%; left:65%;" data-sentence="I can hear light">👂</div>
+  <div class="click-area" style="top:72%; left:40%;" data-sentence="I can hold light">🤲</div>
+</div>
+
+<script>
+let chosenVoice = null;
+function pickVoice(){
+  const voices = speechSynthesis.getVoices() || [];
+  if(!voices.length) return false;
+  const gbVoices = voices.filter(v=>/en[-_]?gb/i.test(v.lang));
+  chosenVoice = gbVoices.length ? gbVoices[0] : voices[0];
+  return true;
+}
+function ensureVoicesThen(fn){
+  if(pickVoice()){ fn(); }
+  else{
+    speechSynthesis.onvoiceschanged = function(){ pickVoice(); fn(); };
+    setTimeout(()=>{ pickVoice(); fn(); }, 800);
+  }
+}
+function speak(txt){
+  const utter = new SpeechSynthesisUtterance(txt);
+  utter.lang = 'en-GB';
+  if(chosenVoice) utter.voice = chosenVoice;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+const startBtn = document.getElementById('startBtn');
+startBtn.addEventListener('click', () => {
+    ensureVoicesThen(() => {});
+    startBtn.style.display = 'none';
+});
+
+document.querySelectorAll('.click-area').forEach(area=>{
+  area.addEventListener('click', ()=>{
+    const sentence = area.getAttribute('data-sentence');
+    speak(sentence);
+    area.classList.add('active');
+    setTimeout(()=>area.classList.remove('active'), 500);
+  });
+});
+</script>
+
+</body>
+</html>
+
 
 
