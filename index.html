@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Senses Interactive Image</title>
+<style>
+body{
+  margin:0;
+  font-family:system-ui,sans-serif;
+  background:#fff;
+}
+.wrap{
+  max-width:600px;
+  margin:24px auto;
+  position:relative;
+}
+.wrap img{
+  width:100%;
+  display:block;
+  border-radius:12px;
+}
+.click-area{
+  position:absolute;
+  cursor:pointer;
+  /* Optional: add border for testing */
+  /* border:2px solid rgba(255,0,0,0.3); */
+}
+.click-area.active{
+  animation: bounce 0.5s ease;
+}
+@keyframes bounce{
+  0%{ transform: scale(1);}
+  25%{ transform: scale(1.1);}
+  50%{ transform: scale(1);}
+  75%{ transform: scale(1.05);}
+  100%{ transform: scale(1);}
+}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <!-- Main image with all icons -->
+  <img src="senses.png" alt="Senses Icons">
+
+  <!-- Clickable regions over icons (adjust coordinates & sizes to match your image) -->
+  <div class="click-area" style="top:10%; left:20%; width:15%; height:15%;" data-sentence="I can see with my eyes"></div>
+  <div class="click-area" style="top:10%; left:60%; width:15%; height:15%;" data-sentence="I can hear with my ears"></div>
+  <div class="click-area" style="top:40%; left:20%; width:15%; height:15%;" data-sentence="I can smell with my nose"></div>
+  <div class="click-area" style="top:40%; left:60%; width:15%; height:15%;" data-sentence="I can taste with my tongue"></div>
+  <div class="click-area" style="top:70%; left:40%; width:15%; height:15%;" data-sentence="I can touch with my hands"></div>
+</div>
+
+<script>
+// Speech synthesis setup
+let chosenVoice = null;
+
+function pickVoice(){
+  const voices = speechSynthesis.getVoices() || [];
+  if(!voices.length) return false;
+  const gbVoices = voices.filter(v=>/en[-_]?gb/i.test(v.lang));
+  chosenVoice = gbVoices.length ? gbVoices[0] : voices[0];
+  return true;
+}
+
+function ensureVoicesThen(fn){
+  if(pickVoice()){ fn(); }
+  else{
+    speechSynthesis.onvoiceschanged = function(){ pickVoice(); fn(); };
+    setTimeout(()=>{ pickVoice(); fn(); }, 800);
+  }
+}
+
+function speak(txt){
+  const utter = new SpeechSynthesisUtterance(txt);
+  utter.lang = 'en-GB';
+  if(chosenVoice) utter.voice = chosenVoice;
+  speechSynthesis.cancel();
+  speechSynthesis.speak(utter);
+}
+
+// Set click listeners
+document.querySelectorAll('.click-area').forEach(area=>{
+  area.addEventListener('click', ()=>{
+    const sentence = area.getAttribute('data-sentence');
+    speak(sentence);
+    area.classList.add('active');
+    setTimeout(()=>area.classList.remove('active'), 500);
+  });
+});
+
+ensureVoicesThen(()=>{});
+</script>
+
+</body>
+</html>
